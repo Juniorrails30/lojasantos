@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}loja santos{% endblock %}</title>
+</head>
+<body>
+    {{ nome }}
+    {% block header %}
+        <h1>Este é o cabeçalho personalizado da página</h1>
+        <li><a href="/">home</a></li>
+        <li><a href="login">login</a></li>
+        <li><a href="logout">logout</a></li>
+        <li><a href="cadastro">cadastro</a></li>
+        <li><a href="add_produtos">produtos</a></li>
+    {% endblock %}
+
+    {% block content %} conteudo  {% endblock %}
+
+    {% block footer %} <h2> roda pé </h2> {% endblock %}
+
+</body>
+</html>
