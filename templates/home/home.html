@@ -5,15 +5,51 @@
     <title>{% block title %}loja santos{% endblock %}</title>
 </head>
 <body>
-    {{ nome }}
     {% block header %}
-        <h1>Este é o cabeçalho personalizado da página</h1>
-        <li><a href="/">home</a></li>
-        <li><a href="login">login</a></li>
-        <li><a href="logout">logout</a></li>
-        <li><a href="cadastro">cadastro</a></li>
-        <li><a href="add_produtos">produtos</a></li>
-    {% endblock %}
+        <h1>Seja Bem-vindo a Loja santos </h1>
+            {% if request.path != '/' %}
+            <li><a href="/">home</a></li>
+        {% endif %}
+
+    {% if request.path == '/' %}
+    <h2>Lista de Produtos</h2>
+    <ul>
+    {% for produto in produtos %}
+        <li>
+            {{ produto.nome }} - preço {{ produto.preco }}
+            <form action="/adicionar_carrinho/{{ produto.id }}" method="POST">
+                <input type="submit" value="Adicionar ao Carrinho">
+            </form>
+        </li>
+    {% endfor %}
+    </ul>
+
+    <h2>Seu Carrinho de Compras</h2>
+    {% for item in carrinho %}
+        <li>{{ item.produto.nome }} - preço {{ item.produto.preco }}
+            Quantidade: {{ quantidade_produtos[item.produto.id] }}</li>
+            <form action="/remover_item_carrinho/{{ item.produto.id }}" method="POST">
+                <input type="submit" value="Remover do Carrinho">
+            </form>
+
+    {% endfor %}
+        <p>Total: {{ total }} </p>
+    {% endif %}
+
+    {% if current_user.is_authenticated %}
+                    <li><a href="logout">Logout</a></li>
+
+            <li><a href="perfil">Perfil</a></li>
+            <li><a href="add_produtos">Produtos</a></li>
+
+        {% else %}
+            <li><a href="cadastro">Cadastro</a></li>
+            <li><a href="login">Login</a></li>
+        {% endif %}
+
+
+
+   {% endblock %}
 
     {% block content %} conteudo  {% endblock %}
 

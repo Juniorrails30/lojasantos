@@ -1,6 +1,7 @@
 {% extends "home/home.html" %}
-{{ nome }}
 {% block content %}
+    <form action="/add_produtos" method="POST">
+
         <label for="nome">Nome:</label>
         <input type="text" id="nome" name="nome" required>
 

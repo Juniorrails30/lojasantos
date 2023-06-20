@@ -4,7 +4,7 @@ from .database import db
 
 
 class Pessoa(UserMixin, db.Model):
-    __tablename__ = "Pessoa"
+    __tablename__ = "pessoa"
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String)
     sobrenome = db.Column(db.String)
@@ -15,7 +15,7 @@ class Pessoa(UserMixin, db.Model):
     bairro = db.Column(db.String)
     complemento = db.Column(db.String)
     cep = db.Column(db.Integer)
-    produtos = db.relationship("produtos", backref="dono", lazy=True)
+    produtos = db.relationship("Produtos", backref="pessoa", lazy=True)
 
     def __init__(
         self,
@@ -40,16 +40,30 @@ class Pessoa(UserMixin, db.Model):
         self.cep = cep
 
 
-class produtos(db.Model):
+class Produtos(db.Model):
     __tablename__ = "produtos"
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String)
-    preco = db.Column(db.String)
-    quantidade = db.Column(db.String, unique=True)
-    dono_id = db.Column(db.Integer, db.ForeignKey("Pessoa.id"), nullable=False)
+    preco = db.Column(db.Integer)
+    quantidade = db.Column(db.Integer)
+    pessoa_id = db.Column(db.Integer, db.ForeignKey("pessoa.id"), nullable=False)
 
-    def __init__(self, nome, preco, quantidade, dono_id):
+    def __init__(self, nome, preco, quantidade, pessoa_id):
         self.nome = nome
         self.preco = preco
         self.quantidade = quantidade
-        self.dono_id = dono_id
+        self.pessoa_id = pessoa_id
+
+
+class Carrinho(db.Model):
+    __tablename__ = "carrinho"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("pessoa.id"), nullable=False)
+    produto_id = db.Column(db.Integer, db.ForeignKey("produtos.id"), nullable=False)
+    quantidade = db.Column(db.Integer, default=1)
+    produto = db.relationship("Produtos", backref="carrinho")
+
+    def get_total(self):
+        total = 0.0
+        total += self.produto.preco * self.quantidade
+        return total

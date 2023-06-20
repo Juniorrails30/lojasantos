@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, render_template, request, url_for
 from flask_bcrypt import Bcrypt, check_password_hash, generate_password_hash
-from flask_login import login_user, logout_user
+from flask_login import current_user, login_required, login_user, logout_user
 
 from ..database import db
 from ..model import Pessoa
@@ -10,6 +10,9 @@ auth = Blueprint("auth", __name__)
 
 @auth.route("/cadastro", methods=["GET", "POST"])
 def cadastro():
+    if current_user.is_authenticated:
+        # O usuário já está logado, redirecione para a página de perfil
+        return redirect(url_for("auth.perfil"))
     if request.method == "POST":
         nome = request.form.get("nome")
         sobrenome = request.form.get("sobrenome")
@@ -37,7 +40,7 @@ def cadastro():
         db.session.add(nova_pessoa)
         db.session.commit()
 
-        return redirect(url_for("auth.login.html"))
+        return redirect(url_for("auth.login"))
     return render_template("auth/register.html")
 
 
@@ -53,6 +56,14 @@ def login():
             login_user(pessoa, remember=remember)
             return redirect(url_for("produtos.home"))
     return render_template("auth/login.html")
+
+
+@auth.route("/perfil")
+def perfil():
+    if not current_user.is_authenticated:
+        return redirect(url_for("auth.login"))
+    else:
+        return render_template("auth/perfil.html", nome=current_user.nome)
 
 
 @auth.route("/logout")
