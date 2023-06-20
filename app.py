@@ -19,7 +19,7 @@ def create_app():
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
     bcrypt = Bcrypt(app)
-
+ddsds
     @login_manager.user_loader
     def load_user(user_id):
         return Pessoa.query.get(int(user_id))
