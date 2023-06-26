@@ -1,5 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from flask_wtf.csrf import validate_csrf
+from sqlalchemy import exc
 
 from ..database import db
 from ..model import Carrinho, Produtos
@@ -25,14 +27,33 @@ def home():
             total += item.get_total()
 
         return render_template(
-            "home/home.html",
+            "home/index.html",
             produtos=produtos,
             carrinho=carrinho,
             total=total,
             quantidade_produtos=quantidade_produtos,
         )
     else:
-        return render_template("home/home.html", produtos=produtos)
+        return render_template("home/index.html", produtos=produtos)
+
+
+@produt.route("/estoque_produtos", methods=["GET"])
+@login_required
+def listar_produtos():
+    produtos = Produtos.query.all()
+    return render_template(
+        "home/listar_produtos.html",
+        produtos=produtos,
+    )
+
+
+@produt.route("/listar_produtos/<string:categoria>", methods=["GET"])
+def listar_produtos_categoria(categoria):
+    produtos_categoria = Produtos.query.filter_by(categoria=categoria).all()
+    return render_template(
+        "home/lista_produto_categoria.html",
+        produtos_categoria=produtos_categoria,
+    )
 
 
 @produt.route("/add_produtos", methods=["POST", "GET"])
@@ -40,10 +61,19 @@ def home():
 def add_post():
     if current_user.email == "admin@santoslojas.com":
         if request.method == "POST":
+            validate_csrf(request.form.get("csrf_token"))
+
             nome = request.form.get("nome")
             preco = request.form.get("preco")
+            categoria = request.form.get("categoria")
             quantidade = request.form.get("quantidade")
-            novo_produto = Produtos(nome, preco, quantidade, current_user.id)
+            novo_produto = Produtos(
+                nome,
+                preco,
+                categoria,
+                quantidade,
+                current_user.id,
+            )
             db.session.add(novo_produto)
             db.session.commit()
         return render_template("home/produtos.html")
@@ -51,35 +81,49 @@ def add_post():
         return redirect(url_for("produtos.home"))
 
 
-@produt.route("/adicionar_carrinho/<int:produto_id>", methods=["POST"])
+@produt.route("/atualizar_produto/<int:produto_id>", methods=["POST", "GET"])
 @login_required
-def add_to_cart(produto_id):
+def atualizar_produtos(produto_id):
+    produto = Produtos.query.get(produto_id)
+    if current_user.email == "admin@santoslojas.com":
+        if request.method == "POST":
+            nome = request.form.get("nome")
+            preco = request.form.get("preco")
+            categoria = request.form.get("categoria")
+            quantidade = request.form.get("quantidade")
+
+            # Atualize os valores do produto existente
+            produto.nome = nome
+            produto.preco = preco
+            produto.quantidade = quantidade
+            produto.categoria = categoria
+
+            db.session.commit()
+            flash("Produto atualizado com sucesso")
+
+        return render_template("home/atualizar_produto.html", produto=produto)
+    else:
+        return redirect(url_for("produtos.home"))
+
+
+@produt.route("/deleta_produto/<int:produto_id>", methods=["POST", "GET"])
+@login_required
+def deletar_produto(produto_id):
     produto = Produtos.query.get(produto_id)
     if produto:
-        carrinho_item = Carrinho.query.filter_by(
-            user_id=current_user.id, produto_id=produto.id
-        ).first()
-        if carrinho_item:
-            carrinho_item.quantidade += 1
-        else:
-            carrinho_item = Carrinho(user_id=current_user.id, produto_id=produto.id)
-            db.session.add(carrinho_item)
-        db.session.commit()
-        flash("Produto adicionado ao carrinho com sucesso.", "success")
-    return redirect(url_for("produtos.home"))
+        try:
+            # Deleta os registros relacionados na tabela carrinho
+            Carrinho.query.filter_by(produto_id=produto.id).delete()
 
+            # Deleta o produto do estoque
+            db.session.delete(produto)
+            db.session.commit()
 
-@produt.route("/remover_item_carrinho/<int:produto_id>", methods=["POST"])
-@login_required
-def remove_from_cart(produto_id):
-    carrinho_item = Carrinho.query.filter_by(
-        user_id=current_user.id, produto_id=produto_id
-    ).first()
-    if carrinho_item:
-        if carrinho_item.quantidade > 1:
-            carrinho_item.quantidade -= 1
-        else:
-            db.session.delete(carrinho_item)
-        db.session.commit()
-        flash("Item removido do carrinho com sucesso.", "success")
+            flash("Produto deletado com sucesso.", "success")
+        except exc.SQLAlchemyError:
+            db.session.rollback()
+            flash("Erro ao deletar o produto.", "error")
+    else:
+        flash("Produto não encontrado.", "error")
+
     return redirect(url_for("produtos.home"))

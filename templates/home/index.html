@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  {% block head %}
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loja Santos</title>
+  <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+
+   {% if csrf_token %}
+   <meta name="csrf-token" content="{{ csrf_token() }}">
+    {% endif %}
+    </head>
+  {% endblock %}
+
+    {% block nav %}
+  <header>
+    <div class="container">
+      <i class="fa fa-bars" title="Click me!"></i>
+      <ul>
+        <li><a href="/">Início</a></li>
+      {% if current_user.is_authenticated %}
+        <li><a href="perfil">Perfil</a></li>
+        <li><a href="logout">Logout</a></li>
+      {% else %}
+        <li><a href="login">Login</a></li>
+        <li><a href="register">Registra-se</a></li>
+      {% endif %}
+      {% if current_user.is_authenticated and current_user.email == "admin@santoslojas.com" %}
+        <li><a href="add_produtos">Adicionar Produto</a></li>
+        <li><a href="estoque_produtos">Estoque Produto</a></li>
+      {% endif %}
+      </ul>
+    </div>
+  </header>
+{% endblock %}
+
+
+  {% block cart %}
+  <!-- Carrinho de compra -->
+    {% if current_user.is_authenticated and request.path != '/add_produtos' %}
+        <div id="cart">
+          <a href="/cart?timestamp={{ current_time }}" class="cart-link">
+            <span id="cart-count" class="cart-quantity">{{ current_user.cart_quantity if current_user.cart_quantity is not none else '0' }}</span>
+            <i class="fas fa-shopping-cart"></i>
+          </a>
+        </div>
+     {% endif %}
+{% endblock %}
+
+
+  {% block content %}
+  <main>
+    <h1>Categorias</h1>
+    <div class="category-grid">
+  </main>
+
+      <!-- Adicione mais categorias aqui -->
+  <div class="card-grid">
+      {% set categorias_exibidas = {} %}
+      {% for produto in produtos %}
+        {%if produto.categoria not in categorias_exibidas %}
+           {% set _ = categorias_exibidas.update({produto.categoria: True})%}
+         <div class="card">
+        <div class="card-img"><div class="img"></div></div>
+        <div class="card-title">{{produto.nome}}</div>
+        <div class="card-subtitle">Product description. Lorem ipsum dolor sit amet, consectetur adipisicing elit.</div>
+    <hr class="card-divider">
+    <div class="card-footer">
+    <div class="card-price"><span>$</span> {{produto.preco}} </div>
+    <body>
+    <button class="card-btn card-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="m397.78 316h-205.13a15 15 0 0 1 -14.65-11.67l-34.54-150.48a15 15 0 0 1 14.62-18.36h274.27a15 15 0 0 1 14.65 18.36l-34.6 150.48a15 15 0 0 1 -14.62 11.67zm-193.19-30h181.25l27.67-120.48h-236.6z"></path><path d="m222 450a57.48 57.48 0 1 1 57.48-57.48 57.54 57.54 0 0 1 -57.48 57.48zm0-84.95a27.48 27.48 0 1 0 27.48 27.47 27.5 27.5 0 0 0 -27.48-27.47z"></path><path d="m368.42 450a57.48 57.48 0 1 1 57.48-57.48 57.54 57.54 0 0 1 -57.48 57.48zm0-84.95a27.48 27.48 0 1 0 27.48 27.47 27.5 27.5 0 0 0 -27.48-27.47z"></path><path d="m158.08 165.49a15 15 0 0 1 -14.23-10.26l-25.71-77.23h-47.44a15 15 0 1 1 0-30h58.3a15 15 0 0 1 14.23 10.26l29.13 87.49a15 15 0 0 1 -14.23 19.74z"></path></svg>
+    </button>
+    </div>
+    <form class="add-to-cart-form" method="POST" action="/adicionar_carrinho/{{ produto.id }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="produto_id" value="{{ produto.id }}">
+      <input type="submit" class="add-to-cart-btn" value="Adicionar ao Carrinho" data-produto-id="{{ produto.id }}">
+    </form>
+    <a href="{{ url_for('produtos.listar_produtos_categoria', categoria=produto.categoria) }}">
+      <button class="categoria-btn">Ver mais produtos da categoria</button>
+    </a>
+    </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+      <!-- Adicione mais produtos aqui -->
+  {% endblock%}
+
+  {% block footer %}
+  <footer>
+    <p>&copy; 2023 Minha Loja. Todos os direitos reservados.</p>
+  </footer>
+  {% endblock %}
+
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Defina a variável current_user.is_authenticated -->
+  <script src="{{url_for('static', filename='js/jquery_carrinho.js')}}"></script>
+  <script src="{{url_for('static', filename='js/click_do_carrinho.js')}}"></script>
+  <script src="{{url_for('static', filename='js/nav.js')}}"></script>
+</body>
+</html>

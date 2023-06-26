@@ -1,0 +1,41 @@
+{% extends "home/index.html" %}
+{% block head %}
+ {{super()}}
+  <link rel="stylesheet" href="{{url_for('static', filename='css/add_produt.css')}}">
+{% endblock %}
+{% block content %}
+
+<div class="form-container">
+    <form class="form"action="/atualizar_produto/{{ produto.id }}" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <p class="title">Atualizar o Produto</p>
+    <p class="message">atualize o produto conforme os campos abaixo</p>
+    <div class="flex">
+      <label>
+        <input type="text" class="input" id="nome" name="nome" value="{{ produto.nome if produto else '' }}">
+        <span>Nome</span>
+      </label>
+
+      <label>
+        <input type="text" class="input" id="preco" name="preco" value="{{ produto.preco if produto else '' }}">
+        <span>Preço</span>
+      </label>
+    </div>
+
+    <label>
+    <input type="text" class="input" id="categoria" name="categoria" value="{{ produto.categoria if produto else '' }}">
+      <span>Categoria</span>
+    </label>
+
+    <label>
+      <input type="text" class="input" id="quantidade" name="quantidade" value="{{ produto.quantidade if produto else '' }}">
+      <span>Quantidades</span>
+    </label>
+
+    <button class="submit">Submit</button>
+  </form>
+</div>
+
+{% endblock %}
+
+

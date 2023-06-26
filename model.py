@@ -7,37 +7,20 @@ class Pessoa(UserMixin, db.Model):
     __tablename__ = "pessoa"
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String)
-    sobrenome = db.Column(db.String)
     email = db.Column(db.String, unique=True)
     senha = db.Column(db.String)
-    telefone = db.Column(db.Integer)
-    rua = db.Column(db.String)
-    bairro = db.Column(db.String)
-    complemento = db.Column(db.String)
-    cep = db.Column(db.Integer)
+    cart_quantity = db.Column(db.Integer, default=0)
     produtos = db.relationship("Produtos", backref="pessoa", lazy=True)
 
     def __init__(
         self,
         nome,
-        sobrenome,
         email,
         senha,
-        telefone,
-        rua,
-        bairro,
-        complemento,
-        cep,
     ):
         self.nome = nome
-        self.sobrenome = sobrenome
         self.email = email
         self.senha = senha
-        self.telefone = telefone
-        self.rua = rua
-        self.bairro = bairro
-        self.complemento = complemento
-        self.cep = cep
 
 
 class Produtos(db.Model):
@@ -45,12 +28,14 @@ class Produtos(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String)
     preco = db.Column(db.Integer)
+    categoria = db.Column(db.String)
     quantidade = db.Column(db.Integer)
     pessoa_id = db.Column(db.Integer, db.ForeignKey("pessoa.id"), nullable=False)
 
-    def __init__(self, nome, preco, quantidade, pessoa_id):
+    def __init__(self, nome, preco, categoria, quantidade, pessoa_id):
         self.nome = nome
         self.preco = preco
+        self.categoria = categoria
         self.quantidade = quantidade
         self.pessoa_id = pessoa_id
 
@@ -61,6 +46,8 @@ class Carrinho(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("pessoa.id"), nullable=False)
     produto_id = db.Column(db.Integer, db.ForeignKey("produtos.id"), nullable=False)
     quantidade = db.Column(db.Integer, default=1)
+
+    # Adicione a relação com o modelo Produtos
     produto = db.relationship("Produtos", backref="carrinho")
 
     def get_total(self):

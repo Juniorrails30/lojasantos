@@ -1,18 +1,41 @@
-{% extends "home/home.html" %}
+{% extends "home/index.html" %}
+{% block head %}
+ {{super()}}
+  <link rel="stylesheet" href="{{url_for('static', filename='css/add_produt.css')}}">
+{% endblock %}
 {% block content %}
-    <form action="/add_produtos" method="POST">
 
-        <label for="nome">Nome:</label>
-        <input type="text" id="nome" name="nome" required>
+<div class="form-container">
+  <form class="form" action="/add_produtos" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <p class="title">Registrar Produto</p>
+    <p class="message">registre os produtos conforme os campos abaixo</p>
+    <div class="flex">
+      <label>
+        <input required="" placeholder="" type="text" name="nome" class="input">
+        <span>Nome</span>
+      </label>
 
-        <label for="preco">Preço:</label>
-        <input type="text" id="preco" name="preco" required>
+      <label>
+        <input required="" placeholder="" type="text" name="preco" class="input">
+        <span>Preço</span>
+      </label>
+    </div>
 
-        <label for="quantidade">Quantidades:</label>
-        <input type="quantidade" id="quantidade" name="quantidade" required>
+    <label>
+      <input required="" placeholder="" type="text" name="categoria" class="input">
+      <span>Categoria</span>
+    </label>
 
-        <button type="submit">Enviar</button>
-    </form>
+    <label>
+      <input required="" placeholder="" type="text" name="quantidade" class="input">
+      <span>Quantidades</span>
+    </label>
+
+    <button class="submit">Submit</button>
+  </form>
+</div>
+
 {% endblock %}
 
 

@@ -1,45 +1,30 @@
-{% extends "home/home.html" %}
 
-    {% block header %}
-    {{super()}}
+{% extends "home/index.html" %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cadastro.css') }}">
+{% endblock %}
+
+
+{%block navbar %} {{super()}} {% endblock%}
+{% block content %}
+<div class="page">
+        <form method="POST" class="formLogin">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <h1>Cadastro</h1>
+            <p>Digite os seus dados de acesso no campo abaixo.</p>
+            <label for="nome">Nome</label>
+            <input name="nome"type="text" placeholder="Digite seu nome" autofocus="true" />
+
+            <label for="email">E-mail</label>
+            <input name="email"type="email" placeholder="Digite seu e-mail" autofocus="true" />
+
+            <label for="password">Senha</label>
+            <input name="senha" type="password" placeholder="Digite sua senha" />
+            <input type="submit" value="Acessar" class="btn" />
+        </form>
+    </div>
     {% endblock %}
-
-    {% block content %}
-    <form action="/cadastro" method="POST">
-        <label for="nome">Nome:</label>
-        <input type="text" id="nome" name="nome" required>
-
-        <label for="sobrenome">Sobrenome:</label>
-        <input type="text" id="sobrenome" name="sobrenome" required>
-
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-
-        <label for="senha">Senha:</label>
-        <input type="password" id="senha" name="senha" required>
-
-
-        <label for="telefone">Telefone:</label>
-        <input type="text" id="telefone" name="telefone" required>
-
-        <label for="rua">Rua:</label>
-        <input type="text" id="rua" name="rua" required>
-
-        <label for="bairro">Bairro:</label>
-        <input type="text" id="bairro" name="bairro" required>
-
-        <label for="comple">Complemento:</label>
-        <input type="text" id="comple" name="comple" required>
-
-        <label for="cep">Cep:</label>
-        <input type="text" id="cep" name="cep" required>
-
-
-        <button type="submit">Enviar</button>
-
-        <a href="/login">login</a>
-    </form>
-    {% endblock %}
-    {% block footer %} {{super()}} {% endblock%}
-
 

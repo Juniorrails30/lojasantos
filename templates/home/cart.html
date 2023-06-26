@@ -1,0 +1,47 @@
+{% extends "home/index.html" %}
+
+{% block head %}
+{{super()}}
+  <link rel="stylesheet" href="{{url_for('static', filename='css/cart.css')}}">
+  {% endblock%}
+
+  {% block cart %}
+
+    {{ super() }}
+
+    {% endblock %}
+
+{% block content %}
+  <h1>Carrinho de Compras</h1>
+
+{% if not carrinho_itens %}
+
+  <p>O carrinho está vazio.</p>
+
+ {% else %}
+  <div class="card-grid">
+    {% for item in carrinho_itens %}
+      <div class="card">
+        <div class="card-img"><div class="img"></div></div>
+        <div class="card-title">{{item.produto.nome}}</div>
+        <div class="card-subtitle">Product description. Lorem ipsum dolor sit amet, consectetur adipisicing elit.</div>
+        <hr class="card-divider">
+        <div class="card-footer">
+          <div class="card-price"><span>$</span> {{item.produto.preco}}</div>
+        </div>
+        <form action="/remover_item_carrinho/{{ item.produto.id }}" method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="button"> Remover item</button>
+          <button class="button" onclick="javascript:history.back()">Continuar comprando</button>
+        </form>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="total">Total: {{ total }}</div>
+
+{% endif %}
+
+{% endblock %}
+{% block footer%}
+{% endblock%}
+

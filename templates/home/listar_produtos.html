@@ -1,0 +1,51 @@
+
+<html>
+<head>
+    {%block head %}
+    <link rel="stylesheet" href="{{url_for('static', filename='css/estoque_produtos.css')}}">
+    {% endblock %}
+    <title>Lista de Produtos</title>
+</head>
+
+</head>
+<body>
+    <h1>Lista de Produtos</h1>
+    <div class="card">
+        <table>
+            <tr class="table">
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Preço</th>
+                <th>Categoria</th>
+                <th>Quantidade em Estoque</th>
+                <th>Ação</th>
+            </tr>
+            {% for produto in produtos %}
+            <tr class="list-produt">
+                <td><p>{{ produto.id }}</p></td>
+                <td>{{ produto.nome }}</td>
+                <td>{{ produto.preco }}</td>
+                <td>{{ produto.categoria }}</td>
+                <td>{{ produto.quantidade }}</td>
+                <td class="actions">
+                    <form action="/deleta_produto/{{ produto.id }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="submit" type="submit">Remover</button>
+                    </form>
+
+                <form action="/atualizar_produto/{{ produto.id }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="nome" value="{{ produto.nome }}">
+                    <input type="hidden" name="preco" value="{{ produto.preco }}">
+                    <input type="hidden" name="categoria" value="{{ produto.categoria }}">
+                    <input type="hidden" name="quantidade" value="{{ produto.quantidade }}">
+                    <button class="submit" type="submit">Editar</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+</html>
+
