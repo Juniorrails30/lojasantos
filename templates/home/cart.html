@@ -1,47 +1,48 @@
+
 {% extends "home/index.html" %}
 
 {% block head %}
-{{super()}}
-  <link rel="stylesheet" href="{{url_for('static', filename='css/cart.css')}}">
-  {% endblock%}
-
-  {% block cart %}
-
-    {{ super() }}
-
-    {% endblock %}
+  {{ super() }}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cart.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% endblock %}
 
 {% block content %}
-  <h1>Carrinho de Compras</h1>
+  <h1 class="title">Carrinho de Compras</h1>
+  {% if not carrinho_itens %}
+    <p>O carrinho está vazio.</p>
+  {% else %}
+    <div class="card-grid">
+      {% set carrinho_dict = {} %}
+      {% for item in carrinho_itens %}
+        {% set produto_id = item.produto.id %}
+        {% if produto_id not in carrinho_dict.keys() %}
+          {% set _ = carrinho_dict.update({produto_id: item}) %}
+        {% else %}
+          {% set _ = carrinho_dict[produto_id].quantidade.update(carrinho_dict[produto_id].quantidade + item.quantidade) %}
+        {% endif %}
+      {% endfor %}
 
-{% if not carrinho_itens %}
-
-  <p>O carrinho está vazio.</p>
-
- {% else %}
-  <div class="card-grid">
-    {% for item in carrinho_itens %}
-      <div class="card">
-        <div class="card-img"><div class="img"></div></div>
-        <div class="card-title">{{item.produto.nome}}</div>
-        <div class="card-subtitle">Product description. Lorem ipsum dolor sit amet, consectetur adipisicing elit.</div>
-        <hr class="card-divider">
-        <div class="card-footer">
-          <div class="card-price"><span>$</span> {{item.produto.preco}}</div>
+      {% for produto_id, item in carrinho_dict.items() %}
+        {% set produto = item.produto %}
+        <div class="card">
+          <div class="card-img"><div class="img"></div></div>
+          <div class="card-title">{{ produto.nome }}</div>
+          <div class="card-subtitle">Product description. Lorem ipsum dolor sit amet, consectetur adipisicing elit.</div>
+          <hr class="card-divider">
+          <div class="card-footer">
+            <div class="card-price"><span>$</span> {{ produto.preco }}</div>
+          </div>
+          <form action="/remover_item_carrinho/{{ produto_id }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="button">Remover item</button>
+            <button class="button" onclick="javascript:history.back()">Continuar comprando</button>
+          </form>
+          <div class="card-quantity"><p class="quantidade"> Quantidade: {{ item.quantidade }}</p></div>
         </div>
-        <form action="/remover_item_carrinho/{{ item.produto.id }}" method="POST">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button class="button"> Remover item</button>
-          <button class="button" onclick="javascript:history.back()">Continuar comprando</button>
-        </form>
-      </div>
-    {% endfor %}
-  </div>
-  <div class="total">Total: {{ total }}</div>
-
-{% endif %}
-
+      {% endfor %}
+    </div>
+    <div class="total">Total: {{ total }}</div>
+  {% endif %}
 {% endblock %}
-{% block footer%}
-{% endblock%}
 

@@ -1,11 +1,13 @@
 from flask import Flask
-from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
+from flask_migrate import Migrate
+from flask_wtf.csrf import CSRFProtect
 
 from .cadastro.login import auth
+from .carrinho_compra.carrinho import carrinho
 from .database import db
 from .model import Pessoa
-from .produtos.home import produto
+from .produtos.produto import produt
 
 
 def create_app():
@@ -13,13 +15,16 @@ def create_app():
     login_manager = LoginManager()
     login_manager.init_app(app)
     app.config["SECRET_KEY"] = "tudo posso naquele que me fortalece"
+    csrf = CSRFProtect()
+    csrf.init_app(app)
     app.register_blueprint(auth)
-    app.register_blueprint(produto)
+    app.register_blueprint(produt)
+    app.register_blueprint(carrinho)
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
-    bcrypt = Bcrypt(app)
-ddsds
+    Migrate(app, db)
+
     @login_manager.user_loader
     def load_user(user_id):
         return Pessoa.query.get(int(user_id))
@@ -33,5 +38,4 @@ ddsds
 
 
 if __name__ == "__main__":
-    app = create_app()
-    app.run()
+    create_app()

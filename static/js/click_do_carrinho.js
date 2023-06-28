@@ -17,7 +17,6 @@ function atualizarNumeroItensCarrinho() {
 atualizarNumeroItensCarrinho();
 
 // Verificar se o usuário está logado
-var isUserLoggedIn = false;  // Defina como "true" ou "false" com base na autenticação do usuário
 
 // Função para redirecionar para a página de login
 function redirectToLogin() {

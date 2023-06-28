@@ -11,13 +11,6 @@ from ..model import Carrinho, Produtos
 carrinho = Blueprint("carrinho", __name__)
 
 
-def get_total(carrinho_itens):
-    total = 0.0
-    for item in carrinho_itens:
-        total += item.produto.preco * item.quantidade
-    return total
-
-
 @carrinho.route("/carrinho/contar", methods=["GET"])
 def contar_itens_carrinho():
     if current_user.is_authenticated:
@@ -26,7 +19,6 @@ def contar_itens_carrinho():
         cart_quantity = 0
 
     response = {"cart_count": cart_quantity}
-    print(response)
     return json.dumps(response)
 
 
@@ -34,7 +26,7 @@ def contar_itens_carrinho():
 @login_required
 def cart():
     carrinho_itens = Carrinho.query.filter_by(user_id=current_user.id).all()
-    total = get_total(carrinho_itens)
+    total = sum(item.produto.preco * item.quantidade for item in carrinho_itens)
     return render_template(
         "home/cart.html",
         carrinho_itens=carrinho_itens,
@@ -56,7 +48,10 @@ def add_to_cart(produto_id):
         if carrinho_item:
             carrinho_item.quantidade += 1
         else:
-            carrinho_item = Carrinho(user_id=current_user.id, produto_id=produto.id)
+            carrinho_item = Carrinho(
+                user_id=current_user.id,
+                produto_id=produto.id,
+            )
             db.session.add(carrinho_item)
 
         db.session.commit()
@@ -69,7 +64,6 @@ def add_to_cart(produto_id):
     )
     db.session.commit()
 
-    print(current_user.cart_quantity)
     # Retorna a quantidade atualizada de itens no carrinho em formato JSON
     response = {"cart_count": current_user.cart_quantity}
     return json.dumps(response)
